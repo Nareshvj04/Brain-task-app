@@ -4,7 +4,7 @@ phases:
   install:
     commands:
       - echo "Installing required tools..."
-      - curl -LO "https://k8s.io(curl -L -s https://k8s.io)/bin/linux/amd64/kubectl"
+      - curl -LO "https://k8s.io"
       - chmod +x ./kubectl
       - mv ./kubectl /usr/local/bin/kubectl
       - curl --silent --location "https://github.com" | tar xz -C /tmp
