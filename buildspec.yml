@@ -1,6 +1,16 @@
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      docker: 20
+    commands:
+      - echo "Installing required tools..."
+      - curl -LO "https://k8s.io(curl -L -s https://k8s.io)/bin/linux/amd64/kubectl"
+      - chmod +x ./kubectl
+      - mv ./kubectl /usr/local/bin/kubectl
+      - curl --silent --location "https://github.com" | tar xz -C /tmp
+      - mv /tmp/eksctl /usr/local/bin
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
@@ -12,14 +22,14 @@ phases:
       - echo Build started on `date`
       - echo Building the Docker image...
       - docker build -t brain-tasks-app .
-      - docker tag brain-tasks-app:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION://amazonaws.com/brain-tasks-app:$CODEBUILD_RESOLVED_SOURCE_VERSION
-      - docker tag brain-tasks-app:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION://amazonaws.com/brain-tasks-app:latest
+      - docker tag brain-tasks-app:latest $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - docker tag brain-tasks-app:latest $REPOSITORY_URI:latest
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image to ECR...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION://amazonaws.com/brain-tasks-app:$CODEBUILD_RESOLVED_SOURCE_VERSION
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION://amazonaws.com/brain-tasks-app:latest
+      - docker push $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - docker push $REPOSITORY_URI:latest
       - echo Updating Kubernetes manifests...
       - sed -i "s|brain-tasks-app:latest|brain-tasks-app:$CODEBUILD_RESOLVED_SOURCE_VERSION|g" kubernetes/deployment.yml
       - echo Deploying to AWS EKS cluster...
