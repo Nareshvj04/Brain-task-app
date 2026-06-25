@@ -4,8 +4,9 @@ metadata:
   name: brain-tasks-service
 spec:
   type: LoadBalancer
-  ports:
-  - port: 80
-    targetPort: 3000
   selector:
     app: brain-tasks-app
+  ports:
+    - protocol: TCP
+      port: 80         # The port you open in your browser
+      targetPort: 80   # CHANGE THIS TO 80 (where Nginx is listening)
